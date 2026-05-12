@@ -1,0 +1,105 @@
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg-base:        #0a0e1a;
+  --bg-surface:     #111827;
+  --bg-elevated:    #1a2235;
+  --border:         #1e2d45;
+  --text-primary:   #e8f0ff;
+  --text-secondary: #6b7fa3;
+  --text-mono:      #7dd3fc;
+  --accent-hot:     #f97316;
+  --accent-cold:    #22d3ee;
+  --accent-green:   #34d399;
+  --accent-red:     #f87171;
+}
+
+html, body, #root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: 'Space Grotesk', sans-serif;
+  background: var(--bg-base);
+  color: var(--text-primary);
+  font-feature-settings: 'ss01' on, 'cv01' on;
+  -webkit-font-smoothing: antialiased;
+}
+
+.mono {
+  font-family: 'JetBrains Mono', monospace;
+  color: var(--text-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+.label {
+  text-transform: uppercase;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  color: var(--text-secondary);
+}
+
+.panel {
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+.card {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+input[type='number'],
+input[type='date'],
+select {
+  background: var(--bg-base);
+  border: 1px solid var(--border);
+  color: var(--text-mono);
+  font-family: 'JetBrains Mono', monospace;
+  padding: 6px 10px;
+  border-radius: 6px;
+  outline: none;
+  width: 100%;
+}
+
+input[type='number']:focus,
+input[type='date']:focus,
+select:focus {
+  border-color: var(--text-mono);
+}
+
+button.primary {
+  background: var(--text-mono);
+  color: var(--bg-base);
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+button.ghost {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-primary);
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+button.ghost:hover { border-color: var(--text-mono); }
+
+/* Plotly modebar tweaks for dark theme */
+.js-plotly-plot .modebar { filter: invert(0.85); }
+
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: var(--bg-base); }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: var(--text-secondary); }
