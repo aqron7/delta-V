@@ -4,8 +4,6 @@
 
 A browser-based orbital mechanics calculator and interplanetary mission design tool built for aerospace engineers. Enter an origin, destination, and date windows — delta-v computes a full porkchop plot via Lambert's problem and tells you which launch vehicles can fly the mission at your payload mass.
 
-![delta-v porkchop plot](public/screenshot.png)
-
 ---
 
 ## What it does
