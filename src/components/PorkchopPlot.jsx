@@ -5,11 +5,29 @@ import { useMission } from '../hooks/useMission.jsx';
 function isoDays(t) { return new Date(t).toISOString().slice(0, 10); }
 
 export default function PorkchopPlot() {
-  const elRef = useRef(null);
+  const elRef   = useRef(null);
+  const wrapRef = useRef(null);
   const { porkchop, computing, progress, computeMs, dispatch } = useMission();
+
+  // Keep Plotly sized to its container via ResizeObserver
+  useEffect(() => {
+    const wrap = wrapRef.current;
+    if (!wrap) return;
+    const ro = new ResizeObserver(() => {
+      if (elRef.current?._fullLayout) {
+        Plotly.relayout(elRef.current, {
+          width:  wrap.clientWidth,
+          height: wrap.clientHeight,
+        });
+      }
+    });
+    ro.observe(wrap);
+    return () => ro.disconnect();
+  }, []);
 
   useEffect(() => {
     if (!elRef.current || !porkchop) return;
+    const wrap = wrapRef.current;
     const g = porkchop;
     const x = Array.from(g.launchTimes,  isoDays);
     const y = Array.from(g.arrivalTimes, isoDays);
@@ -19,11 +37,11 @@ export default function PorkchopPlot() {
       type: 'contour',
       x, y, z,
       colorscale: [
-        [0.0, '#22d3ee'], // cyan
-        [0.3, '#34d399'], // green
-        [0.5, '#facc15'], // yellow
-        [0.75,'#f97316'], // orange
-        [1.0, '#f87171'], // red
+        [0.0,  '#22d3ee'],
+        [0.3,  '#34d399'],
+        [0.5,  '#facc15'],
+        [0.75, '#f97316'],
+        [1.0,  '#f87171'],
       ],
       contours: {
         coloring: 'heatmap',
@@ -34,19 +52,33 @@ export default function PorkchopPlot() {
         title: { text: 'Δv (km/s)', font: { color: '#6b7fa3', size: 10 } },
         tickfont: { color: '#6b7fa3', size: 10 },
         outlinewidth: 0,
+        thickness: 12,
       },
       hovertemplate: 'launch: %{x}<br>arrival: %{y}<br>Δv: %{z:.2f} km/s<extra></extra>',
     };
 
     const layout = {
       paper_bgcolor: 'rgba(0,0,0,0)',
-      plot_bgcolor: '#0a0e1a',
-      font: { family: 'JetBrains Mono', color: '#e8f0ff', size: 11 },
-      margin: { l: 80, r: 20, t: 36, b: 60 },
-      height: 460,
-      xaxis: { title: { text: 'launch date', font: { size: 11, color: '#6b7fa3' } }, gridcolor: '#1e2d45', color: '#6b7fa3' },
-      yaxis: { title: { text: 'arrival date', font: { size: 11, color: '#6b7fa3' } }, gridcolor: '#1e2d45', color: '#6b7fa3' },
-      title: { text: 'porkchop plot — total Δv (LEO → parking)', font: { size: 12, color: '#6b7fa3' }, x: 0.02 },
+      plot_bgcolor:  '#0a0e1a',
+      font:   { family: 'JetBrains Mono', color: '#e8f0ff', size: 11 },
+      margin: { l: 80, r: 24, t: 36, b: 60 },
+      width:  wrap?.clientWidth,
+      height: wrap?.clientHeight,
+      xaxis: {
+        title: { text: 'launch date', font: { size: 11, color: '#6b7fa3' } },
+        gridcolor: '#1e2d45',
+        color: '#6b7fa3',
+      },
+      yaxis: {
+        title: { text: 'arrival date', font: { size: 11, color: '#6b7fa3' } },
+        gridcolor: '#1e2d45',
+        color: '#6b7fa3',
+      },
+      title: {
+        text: 'porkchop plot — total Δv (LEO → parking orbit)',
+        font: { size: 11, color: '#6b7fa3' },
+        x: 0.01,
+      },
     };
 
     Plotly.react(elRef.current, [trace], layout, { displayModeBar: false, responsive: true });
@@ -55,13 +87,13 @@ export default function PorkchopPlot() {
     const handler = (ev) => {
       const p = ev.points?.[0];
       if (!p) return;
-      const i = p.pointIndex?.[1] ?? p.pointIndex; // x index
-      const j = p.pointIndex?.[0];                 // y index
+      const i = p.pointIndex?.[1] ?? p.pointIndex;
+      const j = p.pointIndex?.[0];
       if (i == null || j == null) return;
       dispatch({
         type: 'SET_SELECTED',
         value: {
-          launchDate: new Date(g.launchTimes[i]),
+          launchDate:  new Date(g.launchTimes[i]),
           arrivalDate: new Date(g.arrivalTimes[j]),
         },
         results: {
@@ -80,21 +112,32 @@ export default function PorkchopPlot() {
   }, [porkchop, dispatch]);
 
   return (
-    <div className="panel p-3 relative">
+    <div className="panel h-full flex flex-col relative overflow-hidden">
+      {/* Timing badge */}
       {computeMs != null && !computing && (
-        <div className="absolute top-3 right-3 z-10 flex items-center gap-1.5">
+        <div className="absolute top-2 right-3 z-10 flex items-center gap-1.5 pointer-events-none">
           <span className="label">3,600 solutions</span>
           <span className="label opacity-40">·</span>
           <span className="mono text-xs" style={{ color: 'var(--accent-green)' }}>{computeMs} ms</span>
         </div>
       )}
-      <div ref={elRef} style={{ minHeight: 460 }} />
+
+      {/* Plotly container — fills remaining space */}
+      <div ref={wrapRef} className="flex-1 min-h-0">
+        <div ref={elRef} className="w-full h-full" />
+      </div>
+
+      {/* Computing overlay */}
       {computing && (
-        <div className="absolute inset-3 flex items-center justify-center rounded"
-             style={{ background: 'rgba(10, 14, 26, 0.85)', backdropFilter: 'blur(2px)' }}>
+        <div
+          className="absolute inset-0 flex items-center justify-center rounded"
+          style={{ background: 'rgba(10,14,26,0.85)', backdropFilter: 'blur(2px)' }}
+        >
           <div className="text-center space-y-3">
-            <div className="mono text-xs" style={{ color: 'var(--text-mono)' }}>COMPUTING 3,600 LAMBERT SOLUTIONS</div>
-            <div className="w-72 h-1 bg-[var(--border)] rounded overflow-hidden">
+            <div className="mono text-xs" style={{ color: 'var(--text-mono)' }}>
+              COMPUTING 3,600 LAMBERT SOLUTIONS
+            </div>
+            <div className="w-72 h-0.5 bg-[var(--border)] rounded overflow-hidden">
               <div
                 className="h-full rounded progress-fill"
                 style={{ width: `${Math.round(progress * 100)}%`, background: 'var(--accent-cold)' }}

@@ -47,7 +47,7 @@ export default function DeltaVBreakdown() {
       plot_bgcolor: 'rgba(0,0,0,0)',
       font: { family: 'JetBrains Mono, monospace', color: '#e8f0ff', size: 11 },
       margin: { l: 80, r: 80, t: 30, b: 40 },
-      height: 240,
+      height: 190,
       xaxis: {
         title: { text: 'Δv (m/s)', font: { size: 10 } },
         gridcolor: '#1e2d45',
@@ -67,8 +67,8 @@ export default function DeltaVBreakdown() {
   }, [results]);
 
   return (
-    <div className="panel p-3">
-      <div ref={ref} />
+    <div className="panel h-full">
+      <div ref={ref} className="h-full" />
     </div>
   );
 }

@@ -93,8 +93,8 @@ export default function OrbitVisualizer() {
   // One-time scene setup.
   useEffect(() => {
     const mount = mountRef.current;
-    const width = mount.clientWidth;
-    const height = 320;
+    const width  = mount.clientWidth;
+    const height = mount.clientHeight || 400;
 
     const scene = new THREE.Scene();
     scene.background = new THREE.Color(0x0a0e1a);
@@ -230,8 +230,9 @@ export default function OrbitVisualizer() {
 
     const onResize = () => {
       const w = mount.clientWidth;
-      renderer.setSize(w, height);
-      camera.aspect = w / height;
+      const h = mount.clientHeight || height;
+      renderer.setSize(w, h);
+      camera.aspect = w / h;
       camera.updateProjectionMatrix();
     };
     const ro = new ResizeObserver(onResize);
@@ -291,25 +292,21 @@ export default function OrbitVisualizer() {
   }, [origin, destination, selected]);
 
   return (
-    <div className="panel p-3">
-      <div className="flex items-center justify-between mb-2">
+    <div className="panel h-full flex flex-col overflow-hidden">
+      <div className="flex items-center justify-between px-3 pt-3 pb-2 flex-shrink-0">
         <span className="label">heliocentric transfer orbit</span>
-        {selected?.launchDate && (
-          <span className="label">
-            drag to rotate · scroll to zoom
-          </span>
-        )}
+        <span className="label opacity-60">drag · scroll to zoom</span>
       </div>
-      <div ref={mountRef} style={{ width: '100%', height: 320 }} />
+      <div ref={mountRef} className="flex-1 min-h-0 w-full" />
       {selected?.launchDate && (
-        <div className="flex justify-between mt-2 text-xs">
+        <div className="flex items-center gap-4 px-3 py-2 flex-shrink-0 border-t border-[var(--border)]">
           <span className="flex items-center gap-1.5">
             <span className="inline-block w-2 h-2 rounded-full bg-[var(--accent-green)]" />
             <span className="label">departure</span>
           </span>
           <span className="flex items-center gap-1.5">
-            <span className="label">arrival</span>
             <span className="inline-block w-2 h-2 rounded-full bg-[var(--accent-hot)]" />
+            <span className="label">arrival</span>
           </span>
         </div>
       )}
