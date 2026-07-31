@@ -16,6 +16,7 @@ function planetVelocity(bodyName, julianDate) {
 }
 
 function compute({ launchTimes, arrivalTimes, origin, destination }, requestId) {
+  const t0 = performance.now();
   const NL = launchTimes.length;
   const NA = arrivalTimes.length;
 
@@ -86,10 +87,12 @@ function compute({ launchTimes, arrivalTimes, origin, destination }, requestId) 
     }
   }
 
+  const computeMs = Math.round(performance.now() - t0);
   self.postMessage({ type: 'progress', pct: 1, requestId });
   self.postMessage({
     type: 'result',
     requestId,
+    computeMs,
     grid: { dvTotal, dvDep, dvArr, c3, vInfDep, vInfArr, tof: tofArr, launchTimes, arrivalTimes },
   });
 }

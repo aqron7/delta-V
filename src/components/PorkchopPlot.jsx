@@ -6,7 +6,7 @@ function isoDays(t) { return new Date(t).toISOString().slice(0, 10); }
 
 export default function PorkchopPlot() {
   const elRef = useRef(null);
-  const { porkchop, computing, progress, dispatch } = useMission();
+  const { porkchop, computing, progress, computeMs, dispatch } = useMission();
 
   useEffect(() => {
     if (!elRef.current || !porkchop) return;
@@ -81,6 +81,13 @@ export default function PorkchopPlot() {
 
   return (
     <div className="panel p-3 relative">
+      {computeMs != null && !computing && (
+        <div className="absolute top-3 right-3 z-10 flex items-center gap-1.5">
+          <span className="label">3,600 solutions</span>
+          <span className="label opacity-40">·</span>
+          <span className="mono text-xs" style={{ color: 'var(--accent-green)' }}>{computeMs} ms</span>
+        </div>
+      )}
       <div ref={elRef} style={{ minHeight: 460 }} />
       {computing && (
         <div className="absolute inset-3 flex items-center justify-center rounded"

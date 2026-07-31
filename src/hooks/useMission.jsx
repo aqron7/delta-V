@@ -16,6 +16,7 @@ const initialState = {
   porkchop: null,
   computing: false,
   progress: 0,
+  computeMs: null,
 };
 
 function reducer(state, action) {
@@ -29,7 +30,7 @@ function reducer(state, action) {
     case 'SET_TRANSFER_TYPE': return { ...state, transferType: action.value };
     case 'SET_SELECTED':      return { ...state, selected: action.value, results: action.results ?? state.results };
     case 'SET_RESULTS':       return { ...state, results: action.value };
-    case 'SET_PORKCHOP':      return { ...state, porkchop: action.value, computing: false, progress: 1 };
+    case 'SET_PORKCHOP':      return { ...state, porkchop: action.value, computing: false, progress: 1, computeMs: action.computeMs ?? null };
     case 'SET_COMPUTING':     return { ...state, computing: action.value, progress: action.value ? 0 : state.progress };
     case 'SET_PROGRESS':      return { ...state, progress: action.value };
     default: return state;

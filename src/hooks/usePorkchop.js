@@ -27,7 +27,7 @@ export function usePorkchop() {
       if (data.type === 'progress') {
         dispatch({ type: 'SET_PROGRESS', value: data.pct });
       } else if (data.type === 'result') {
-        dispatch({ type: 'SET_PORKCHOP', value: data.grid });
+        dispatch({ type: 'SET_PORKCHOP', value: data.grid, computeMs: data.computeMs });
         // Auto-select the global minimum cell so MissionSummary populates on first load.
         const g = data.grid;
         let bestI = -1, bestJ = -1, bestV = Infinity;

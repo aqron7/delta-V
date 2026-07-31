@@ -124,12 +124,23 @@ export default function OrbitVisualizer() {
     const stars = new THREE.Points(starGeom, new THREE.PointsMaterial({ color: 0xffffff, size: 0.05, sizeAttenuation: false }));
     scene.add(stars);
 
-    // Sun
+    // Sun core + layered glow halo
     const sun = new THREE.Mesh(
       new THREE.SphereGeometry(0.07, 24, 24),
-      new THREE.MeshBasicMaterial({ color: 0xfcd34d }),
+      new THREE.MeshBasicMaterial({ color: 0xfef3c7 }),
     );
     scene.add(sun);
+    const glowLayers = [
+      { r: 0.13, opacity: 0.18, color: 0xfcd34d },
+      { r: 0.22, opacity: 0.07, color: 0xfbbf24 },
+      { r: 0.38, opacity: 0.03, color: 0xf59e0b },
+    ];
+    glowLayers.forEach(({ r, opacity, color }) => {
+      scene.add(new THREE.Mesh(
+        new THREE.SphereGeometry(r, 24, 24),
+        new THREE.MeshBasicMaterial({ color, transparent: true, opacity }),
+      ));
+    });
 
     // Planet orbit rings (always shown)
     const ringGroup = new THREE.Group();
@@ -154,10 +165,25 @@ export default function OrbitVisualizer() {
       scene.add(mesh);
     });
 
-    // Transfer arc placeholder
+    // Transfer arc
     const arcMat = new THREE.LineBasicMaterial({ color: 0x22d3ee });
     const arcLine = new THREE.Line(new THREE.BufferGeometry(), arcMat);
     scene.add(arcLine);
+
+    // Departure and arrival markers (small glowing spheres on the arc endpoints)
+    const departureMesh = new THREE.Mesh(
+      new THREE.SphereGeometry(0.025, 16, 16),
+      new THREE.MeshBasicMaterial({ color: 0x34d399 }),
+    );
+    departureMesh.visible = false;
+    scene.add(departureMesh);
+
+    const arrivalMesh = new THREE.Mesh(
+      new THREE.SphereGeometry(0.025, 16, 16),
+      new THREE.MeshBasicMaterial({ color: 0xf97316 }),
+    );
+    arrivalMesh.visible = false;
+    scene.add(arrivalMesh);
 
     // Camera control: drag to orbit + slow auto-rotate.
     let phi = Math.atan2(camera.position.y, camera.position.x);
@@ -211,7 +237,7 @@ export default function OrbitVisualizer() {
     const ro = new ResizeObserver(onResize);
     ro.observe(mount);
 
-    stateRef.current = { scene, planetMarkers, arcLine };
+    stateRef.current = { scene, planetMarkers, arcLine, departureMesh, arrivalMesh };
 
     return () => {
       cancelAnimationFrame(rafId);
@@ -227,7 +253,7 @@ export default function OrbitVisualizer() {
 
   // Update planet positions + transfer arc whenever the selection changes.
   useEffect(() => {
-    const { planetMarkers, arcLine } = stateRef.current;
+    const { planetMarkers, arcLine, departureMesh, arrivalMesh } = stateRef.current;
     if (!planetMarkers || !arcLine) return;
     const launch = selected?.launchDate;
     const arrival = selected?.arrivalDate;
@@ -245,18 +271,48 @@ export default function OrbitVisualizer() {
         arcLine.geometry.dispose();
         arcLine.geometry = new THREE.BufferGeometry().setFromPoints(pts);
         arcLine.visible = true;
+        // Place departure (green) and arrival (orange) markers
+        if (departureMesh && arrivalMesh) {
+          departureMesh.position.copy(pts[0]);
+          departureMesh.visible = true;
+          arrivalMesh.position.copy(pts[pts.length - 1]);
+          arrivalMesh.visible = true;
+        }
       } else {
         arcLine.visible = false;
+        if (departureMesh) departureMesh.visible = false;
+        if (arrivalMesh)   arrivalMesh.visible   = false;
       }
     } else {
       arcLine.visible = false;
+      if (departureMesh) departureMesh.visible = false;
+      if (arrivalMesh)   arrivalMesh.visible   = false;
     }
   }, [origin, destination, selected]);
 
   return (
     <div className="panel p-3">
-      <div className="label mb-2">orbit visualizer</div>
+      <div className="flex items-center justify-between mb-2">
+        <span className="label">heliocentric transfer orbit</span>
+        {selected?.launchDate && (
+          <span className="label">
+            drag to rotate · scroll to zoom
+          </span>
+        )}
+      </div>
       <div ref={mountRef} style={{ width: '100%', height: 320 }} />
+      {selected?.launchDate && (
+        <div className="flex justify-between mt-2 text-xs">
+          <span className="flex items-center gap-1.5">
+            <span className="inline-block w-2 h-2 rounded-full bg-[var(--accent-green)]" />
+            <span className="label">departure</span>
+          </span>
+          <span className="flex items-center gap-1.5">
+            <span className="label">arrival</span>
+            <span className="inline-block w-2 h-2 rounded-full bg-[var(--accent-hot)]" />
+          </span>
+        </div>
+      )}
     </div>
   );
 }
