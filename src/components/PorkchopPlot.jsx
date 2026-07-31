@@ -83,16 +83,17 @@ export default function PorkchopPlot() {
     <div className="panel p-3 relative">
       <div ref={elRef} style={{ minHeight: 460 }} />
       {computing && (
-        <div className="absolute inset-3 flex items-center justify-center bg-[var(--bg-surface)]/80 rounded">
-          <div className="text-center space-y-2">
-            <div className="label">computing porkchop</div>
-            <div className="w-64 h-1.5 bg-[var(--bg-base)] rounded overflow-hidden">
+        <div className="absolute inset-3 flex items-center justify-center rounded"
+             style={{ background: 'rgba(10, 14, 26, 0.85)', backdropFilter: 'blur(2px)' }}>
+          <div className="text-center space-y-3">
+            <div className="mono text-xs" style={{ color: 'var(--text-mono)' }}>COMPUTING 3,600 LAMBERT SOLUTIONS</div>
+            <div className="w-72 h-1 bg-[var(--border)] rounded overflow-hidden">
               <div
-                className="h-full bg-[var(--text-mono)] transition-[width]"
-                style={{ width: `${Math.round(progress * 100)}%` }}
+                className="h-full rounded progress-fill"
+                style={{ width: `${Math.round(progress * 100)}%`, background: 'var(--accent-cold)' }}
               />
             </div>
-            <div className="mono text-xs">{Math.round(progress * 100)}%</div>
+            <div className="label">{Math.round(progress * 100)}% complete</div>
           </div>
         </div>
       )}

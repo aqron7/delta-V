@@ -26,6 +26,8 @@ body {
   margin: 0;
   font-family: 'Space Grotesk', sans-serif;
   background: var(--bg-base);
+  background-image: radial-gradient(circle, rgba(30, 45, 69, 0.55) 1px, transparent 1px);
+  background-size: 24px 24px;
   color: var(--text-primary);
   font-feature-settings: 'ss01' on, 'cv01' on;
   -webkit-font-smoothing: antialiased;
@@ -103,3 +105,18 @@ button.ghost:hover { border-color: var(--text-mono); }
 ::-webkit-scrollbar-track { background: var(--bg-base); }
 ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
 ::-webkit-scrollbar-thumb:hover { background: var(--text-secondary); }
+
+/* Number update flash — apply via key={value} to replay on data change */
+@keyframes numUpdate {
+  0%   { opacity: 0.4; transform: scale(0.96); }
+  100% { opacity: 1;   transform: scale(1); }
+}
+.num-flash { animation: numUpdate 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
+
+/* Glow variants for hero data values */
+.glow-green  { text-shadow: 0 0 24px rgba(52, 211, 153, 0.55), 0 0 50px rgba(52, 211, 153, 0.18); }
+.glow-cyan   { text-shadow: 0 0 24px rgba(34, 211, 238, 0.55), 0 0 50px rgba(34, 211, 238, 0.18); }
+.glow-orange { text-shadow: 0 0 24px rgba(249, 115, 22,  0.55), 0 0 50px rgba(249, 115, 22,  0.18); }
+
+/* Progress bar fill animation */
+.progress-fill { transition: width 150ms ease-out; }
